@@ -1,5 +1,5 @@
 const fs = require('fs');
-var https = require('https');
+const https = require('https');
 
 const bearerToken = "AAAAAAAAAAAAAAAAAAAAACjFIAEAAAAAZKf1zr4hTbo%2B5icNycZ4lidmM2Q%3DXCxsI5aGDtj1x0kAqluqZFaNvomr3xcfYQyv7OML2E8Nz9Xhci"
 
@@ -62,53 +62,61 @@ function createEmailTextFromTweets(tweetsByAccountToIncludeInEmail) {
     var emailText = ""
 
     tweetsByAccountToIncludeInEmail.forEach(account => {
+        if(account !== null){
+            const tweetUrlTemplate = `https://twitter.com/${account.account}/status/ID`
         
-        const tweetUrlTemplate = `https://twitter.com/${account.account}/status/ID`
-        
-        emailText += account.account
-        emailText += "\n\n"
-
-        account.tweets.forEach(tweet => {
-            const spacer = "  "
-
-            emailText += spacer + tweetUrlTemplate.replace("ID", tweet.id)
-            emailText += "\n"
-            emailText += spacer + tweet.text.replace('\n', ``)
+            emailText += account.account
             emailText += "\n\n"
-        })
-
-        emailText += "\n"
+    
+            account.tweets.forEach(tweet => {
+                const spacer = "  "
+    
+                emailText += spacer + tweetUrlTemplate.replace("ID", tweet.id)
+                emailText += "\n"
+                emailText += spacer + tweet.text.replace('\n', ``)
+                emailText += "\n\n"
+            })
+            
+            emailText += "\n"
+        }
     })
 
     return emailText
 }
 
-const accounts = ['caribouband'] // 'roisinmurphy', 'FourTet', 'floatingpoints', 
+const accountsFile = fs.readFileSync('./accounts.txt').toString('utf8')
+const accounts = accountsFile.split('\n')
 
-const searchTerms = ["this"]//["out now", "new release", "listen to", "new album", "filter:links"]
-
+const searchTermsFile = fs.readFileSync('./search-terms.txt').toString('utf8')
+const searchTerms = searchTermsFile.split('\n')
 
 
 Promise.all(accounts.map(account => httpsRequest(account, searchTerms))).then(responses => {
     const tweetsToIncludeInEmail = responses.map(response => getTweetsForAccount(response.statuses))
 
-    // var params = {
-    //     Destination: {
-    //         ToAddresses: ["recipientEmailAddress"]
-    //     },
-    //     Message: {
-    //         Body: {
-    //             Text: { 
-    //                 Data
-    //             }   
-    //         },
-    //         Subject: { 
-    //             Data: "Test Email"    
-    //         }
-    //     },
-    //     Source: "sourceEmailAddress"
-    // };
-    // console.log(tweetsToIncludeInEmail)
-    console.log(createEmailTextFromTweets(tweetsToIncludeInEmail))
+
+    const emailBody = createEmailTextFromTweets(tweetsToIncludeInEmail)
+    
+    if(emailBody !== ""){
+        var params = {
+            Destination: {
+                ToAddresses: ["recipientEmailAddress"]
+            },
+            Message: {
+                Body: {
+                    Text: { 
+                        Data: emailBody
+                    }   
+                },
+                Subject: { 
+                    Data: "Test Email"    
+                }
+            },
+            Source: "sourceEmailAddress"
+        };
+    
+        // send email
+    }
+    
 })
 
