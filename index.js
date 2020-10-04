@@ -7,13 +7,7 @@ AWS.config.update({region: 'eu-west-1'});
 const bearerToken = "AAAAAAAAAAAAAAAAAAAAACjFIAEAAAAAZKf1zr4hTbo%2B5icNycZ4lidmM2Q%3DXCxsI5aGDtj1x0kAqluqZFaNvomr3xcfYQyv7OML2E8Nz9Xhci"
 
 function httpsRequest(account, searchTerms) {
-    
-    if(searchTerms !== ""){
-        var searchQuery = encodeURI(searchTerms.join(" ")).replace(/%22/g, '"')
-    }else{
-        var searchQuery = searchTerms
-    }
-    
+    var searchQuery = searchTerms !== "" ? encodeURI(searchTerms.join(" ")).replace(/%22/g, '"') : searchTerms
 
     var options = {
         host: 'api.twitter.com',
