@@ -8,7 +8,12 @@ const bearerToken = "AAAAAAAAAAAAAAAAAAAAACjFIAEAAAAAZKf1zr4hTbo%2B5icNycZ4lidmM
 
 function httpsRequest(account, searchTerms) {
     
-    var searchQuery = encodeURI(searchTerms.join(" ")).replace(/%22/g, '"')
+    if(searchTerms !== ""){
+        var searchQuery = encodeURI(searchTerms.join(" ")).replace(/%22/g, '"')
+    }else{
+        var searchQuery = searchTerms
+    }
+    
 
     var options = {
         host: 'api.twitter.com',
@@ -87,12 +92,21 @@ function createEmailTextFromTweets(tweetsByAccountToIncludeInEmail) {
     return emailText
 }
 
+function readSearchTerms(file){ 
+    const searchTermsFile = fs.readFileSync(file).toString('utf8')
+    const searchTerms = searchTermsFile.split('\n')
+    
+    if(searchTerms[0] === "KILL"){
+        return ""
+    }else{
+        return searchTerms
+    }
+}
+
 const accountsFile = fs.readFileSync('./accounts.txt').toString('utf8')
 const accounts = accountsFile.split('\n')
 
-const searchTermsFile = fs.readFileSync('./search-terms.txt').toString('utf8')
-const searchTerms = searchTermsFile.split('\n')
-
+const searchTerms = readSearchTerms('./search-terms.txt')
 
 Promise.all(accounts.map(account => httpsRequest(account, searchTerms))).then(responses => {
     const tweetsToIncludeInEmail = responses.map(response => getTweetsForAccount(response.statuses))
@@ -120,15 +134,15 @@ Promise.all(accounts.map(account => httpsRequest(account, searchTerms))).then(re
             Source: 'peter.rwatschew.p123@gmail.com', 
           };
     
-        var sendPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
+        // var sendPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
 
-        sendPromise.then(
-            function(data) {
-              console.log(data.MessageId);
-            }).catch(
-              function(err) {
-              console.error(err, err.stack);
-            });
+        // sendPromise.then(
+        //     function(data) {
+        //       console.log(data.MessageId);
+        //     }).catch(
+        //       function(err) {
+        //       console.error(err, err.stack);
+        //     });
     }
     
 })
