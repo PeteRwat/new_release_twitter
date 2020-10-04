@@ -17,30 +17,10 @@ Resources:
       MemorySize: 3008
       Timeout: 900
 
-  LambdaLogGroup:
-    Type: "AWS::Logs::LogGroup"
-    DeletionPolicy: Retain
-    Properties:
-      LogGroupName: /aws/lambda/new_release_twitter # Lambda logs automatically go to /aws/lambda/FunctionName
-      RetentionInDays: 30
-
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       Policies:
-        -
-          PolicyName: CloudwatchLogs
-          PolicyDocument:
-            Statement:
-              -
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:GetLogEvents
-                  - logs:PutLogEvents
-                Resource:
-                  - !GetAtt [LambdaLogGroup, Arn]
-                Effect: Allow
         -
           PolicyName: SendEmail
           PolicyDocument:
