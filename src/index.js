@@ -98,50 +98,54 @@ exports.handler = async (event, context) => {
 
     console.log("account file ->", accountsFile)
     const accounts = accountsFile.split('\n')
+    console.log("accounts ->", accounts)
 
     const searchTerms = readSearchTerms('./search-terms.txt')
+    console.log("search terms -->", searchTerms)
 
-    Promise.all(accounts.map(account => httpsRequest(account, searchTerms))).then(responses => {
-        const tweetsToIncludeInEmail = responses.map(response => getTweetsForAccount(response.statuses))
+    Promise.all(accounts.map(account => {
+        console.log("making requests")
+        return httpsRequest(account, searchTerms)}))
+            .then(responses => {
+                console.log("processing responses")
+                const tweetsToIncludeInEmail = responses.map(response => getTweetsForAccount(response.statuses))
+                const emailBody = createEmailTextFromTweets(tweetsToIncludeInEmail)
 
+                console.log("email body -->", emailBody)
 
-        const emailBody = createEmailTextFromTweets(tweetsToIncludeInEmail)
+                if(emailBody !== ""){
+                    var params = {
+                        Destination: {
+                            ToAddresses: ['peter.rwatschew.p123@gmail.com']
+                        },
+                        Message: { 
+                        Body: { 
+                            Text: {
+                            Charset: "UTF-8",
+                            Data: emailBody
+                            }
+                        },
+                        Subject: {
+                            Charset: 'UTF-8',
+                            Data: 'Test email'
+                        }
+                        },
+                        Source: 'peter.rwatschew.p123@gmail.com', 
+                    };
+                    console.log("trying to sending email")
+                    AWS.config.update({region: 'eu-west-1'});
+                    var sendPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
 
-        console.log("email body -->", emailBody)
-
-        if(emailBody !== ""){
-            var params = {
-                Destination: {
-                    ToAddresses: ['peter.rwatschew.p123@gmail.com']
-                },
-                Message: { 
-                Body: { 
-                    Text: {
-                    Charset: "UTF-8",
-                    Data: emailBody
-                    }
-                },
-                Subject: {
-                    Charset: 'UTF-8',
-                    Data: 'Test email'
+                    sendPromise.then(
+                        function(data) {
+                        console.log(data.MessageId);
+                        }).catch(
+                        function(err) {
+                        console.error(err, err.stack);
+                        });
                 }
-                },
-                Source: 'peter.rwatschew.p123@gmail.com', 
-            };
-        
-            AWS.config.update({region: 'eu-west-1'});
-            var sendPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
-
-            sendPromise.then(
-                function(data) {
-                  console.log(data.MessageId);
-                }).catch(
-                  function(err) {
-                  console.error(err, err.stack);
-                });
-        }
-        
-    })
+                
+            })
 
     return "ran lambda"
 }
