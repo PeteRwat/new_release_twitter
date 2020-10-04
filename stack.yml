@@ -32,6 +32,18 @@ Resources:
                 Resource: 
                   - "*"
                 Effect: Allow
+        -
+          PolicyName: CreateLogs
+          PolicyDocument:
+            Statement:
+              -
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: 
+                  - "*"
+                Effect: Allow
 
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
