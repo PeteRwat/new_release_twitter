@@ -4,7 +4,7 @@ phases:
   build:
     commands:
       - npm ci
-      - aws cloudformation package --template-file ./stack.yml --s3-bucket new_release_twitter_bucket --output-template-file ./output-stack.yml
+      - aws cloudformation package --template-file ./stack.yml --s3-bucket ci-jobs --s3-prefix artifacts/new_release_twitter --output-template-file ./output-stack.yml
 
 artifacts:
   type: zip
