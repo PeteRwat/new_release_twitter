@@ -95,6 +95,8 @@ function readSearchTerms(file){
 
 exports.handler = async (event, context) => {
     const accountsFile = fs.readFileSync('./accounts.txt').toString('utf8')
+
+    console.log("account file ->", accountsFile)
     const accounts = accountsFile.split('\n')
 
     const searchTerms = readSearchTerms('./search-terms.txt')
@@ -141,4 +143,5 @@ exports.handler = async (event, context) => {
         
     })
 
+    return "ran lambda"
 }
