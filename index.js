@@ -2,10 +2,6 @@ const fs = require('fs');
 const https = require('https');
 var AWS = require('aws-sdk');
 
-AWS.config.update({region: 'eu-west-1'});
-
-const bearerToken = "AAAAAAAAAAAAAAAAAAAAACjFIAEAAAAAZKf1zr4hTbo%2B5icNycZ4lidmM2Q%3DXCxsI5aGDtj1x0kAqluqZFaNvomr3xcfYQyv7OML2E8Nz9Xhci"
-
 function httpsRequest(account, searchTerms) {
     var searchQuery = searchTerms !== "" ? encodeURI(searchTerms.join(" ")).replace(/%22/g, '"') : searchTerms
 
@@ -97,47 +93,49 @@ function readSearchTerms(file){
     }
 }
 
-const accountsFile = fs.readFileSync('./accounts.txt').toString('utf8')
-const accounts = accountsFile.split('\n')
+exports.handler = async (event, context) => {
+    const accountsFile = fs.readFileSync('./accounts.txt').toString('utf8')
+    const accounts = accountsFile.split('\n')
 
-const searchTerms = readSearchTerms('./search-terms.txt')
+    const searchTerms = readSearchTerms('./search-terms.txt')
 
-Promise.all(accounts.map(account => httpsRequest(account, searchTerms))).then(responses => {
-    const tweetsToIncludeInEmail = responses.map(response => getTweetsForAccount(response.statuses))
+    Promise.all(accounts.map(account => httpsRequest(account, searchTerms))).then(responses => {
+        const tweetsToIncludeInEmail = responses.map(response => getTweetsForAccount(response.statuses))
 
 
-    const emailBody = createEmailTextFromTweets(tweetsToIncludeInEmail)
+        const emailBody = createEmailTextFromTweets(tweetsToIncludeInEmail)
     
-    if(emailBody !== ""){
-        var params = {
-            Destination: {
-              ToAddresses: ['peter.rwatschew.p123@gmail.com']
-            },
-            Message: { 
-              Body: { 
-                Text: {
-                 Charset: "UTF-8",
-                 Data: emailBody
+        if(emailBody !== ""){
+            var params = {
+                Destination: {
+                    ToAddresses: ['peter.rwatschew.p123@gmail.com']
+                },
+                Message: { 
+                Body: { 
+                    Text: {
+                    Charset: "UTF-8",
+                    Data: emailBody
+                    }
+                },
+                Subject: {
+                    Charset: 'UTF-8',
+                    Data: 'Test email'
                 }
-               },
-               Subject: {
-                Charset: 'UTF-8',
-                Data: 'Test email'
-               }
-              },
-            Source: 'peter.rwatschew.p123@gmail.com', 
-          };
-    
-        // var sendPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
+                },
+                Source: 'peter.rwatschew.p123@gmail.com', 
+            };
+        
+            AWS.config.update({region: 'eu-west-1'});
+            var sendPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
 
-        // sendPromise.then(
-        //     function(data) {
-        //       console.log(data.MessageId);
-        //     }).catch(
-        //       function(err) {
-        //       console.error(err, err.stack);
-        //     });
-    }
-    
-})
-
+            sendPromise.then(
+                function(data) {
+                  console.log(data.MessageId);
+                }).catch(
+                  function(err) {
+                  console.error(err, err.stack);
+                });
+        }
+        
+    })
+}
