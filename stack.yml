@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: 'AWS::Serverless-2016-10-31'
+Resources:
+  Lambda:
+    Type: 'AWS::Serverless::Function'
+     # the 2 policies below should satisfy cfn-lint but the SAM transform isn't passing them thru apparently
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      FunctionName: new_release_twitter
+      Handler: src/index.handler
+      Runtime: nodejs12.x
+      CodeUri: ../../../build
+      AutoPublishAlias: live
+      Description: Lambda that emails me relevant tweets
+      Role: !GetAtt [ LambdaExecutionRole, Arn ]
+      MemorySize: 3008
+      Timeout: 900
+
+  LambdaLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: /aws/lambda/new_release_twitter # Lambda logs automatically go to /aws/lambda/FunctionName
+      RetentionInDays: 30
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Policies:
+        -
+          PolicyName: CloudwatchLogs
+          PolicyDocument:
+            Statement:
+              -
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:GetLogEvents
+                  - logs:PutLogEvents
+                Resource:
+                  - !GetAtt [LambdaLogGroup, Arn]
+                Effect: Allow
+        -
+          PolicyName: SendEmail
+          PolicyDocument:
+            Statement:
+              -
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: 
+                  - "*"
+                Effect: Allow
+
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+
