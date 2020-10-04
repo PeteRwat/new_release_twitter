@@ -10,7 +10,7 @@ Resources:
       FunctionName: new_release_twitter
       Handler: src/index.handler
       Runtime: nodejs12.x
-      CodeUri: ./src
+      CodeUri: ./
       AutoPublishAlias: live
       Description: Lambda that emails me relevant tweets
       Role: !GetAtt [ LambdaExecutionRole, Arn ]
