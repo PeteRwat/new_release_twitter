@@ -8,7 +8,7 @@ Resources:
     UpdateReplacePolicy: Delete
     Properties:
       FunctionName: new_release_twitter
-      Handler: src/index.js
+      Handler: index.handler
       Runtime: nodejs12.x
       CodeUri: ./src
       AutoPublishAlias: live
