@@ -104,7 +104,9 @@ exports.handler = async (event, context) => {
 
 
         const emailBody = createEmailTextFromTweets(tweetsToIncludeInEmail)
-    
+
+        console.log("email body -->", emailBody)
+
         if(emailBody !== ""){
             var params = {
                 Destination: {
@@ -138,4 +140,6 @@ exports.handler = async (event, context) => {
         }
         
     })
+
+    return emailBody
 }
