@@ -1,0 +1,22 @@
+{
+  "name": "new_release_twitter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PeteRwat/new_release_twitter.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PeteRwat/new_release_twitter/issues"
+  },
+  "homepage": "https://github.com/PeteRwat/new_release_twitter#readme",
+  "dependencies": {
+    "aws-sdk": "^2.766.0"
+  }
+}
