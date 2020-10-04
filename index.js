@@ -1,5 +1,8 @@
 const fs = require('fs');
 const https = require('https');
+var AWS = require('aws-sdk');
+
+AWS.config.update({region: 'eu-west-1'});
 
 const bearerToken = "AAAAAAAAAAAAAAAAAAAAACjFIAEAAAAAZKf1zr4hTbo%2B5icNycZ4lidmM2Q%3DXCxsI5aGDtj1x0kAqluqZFaNvomr3xcfYQyv7OML2E8Nz9Xhci"
 
@@ -100,22 +103,32 @@ Promise.all(accounts.map(account => httpsRequest(account, searchTerms))).then(re
     if(emailBody !== ""){
         var params = {
             Destination: {
-                ToAddresses: ["recipientEmailAddress"]
+              ToAddresses: ['peter.rwatschew.p123@gmail.com']
             },
-            Message: {
-                Body: {
-                    Text: { 
-                        Data: emailBody
-                    }   
-                },
-                Subject: { 
-                    Data: "Test Email"    
+            Message: { 
+              Body: { 
+                Text: {
+                 Charset: "UTF-8",
+                 Data: emailBody
                 }
-            },
-            Source: "sourceEmailAddress"
-        };
+               },
+               Subject: {
+                Charset: 'UTF-8',
+                Data: 'Test email'
+               }
+              },
+            Source: 'peter.rwatschew.p123@gmail.com', 
+          };
     
-        // send email
+        var sendPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
+
+        sendPromise.then(
+            function(data) {
+              console.log(data.MessageId);
+            }).catch(
+              function(err) {
+              console.error(err, err.stack);
+            });
     }
     
 })
