@@ -8,9 +8,9 @@ Resources:
     UpdateReplacePolicy: Delete
     Properties:
       FunctionName: new_release_twitter
-      Handler: src/index.handler
+      Handler: src/index.js
       Runtime: nodejs12.x
-      CodeUri: ./
+      CodeUri: ./src
       AutoPublishAlias: live
       Description: Lambda that emails me relevant tweets
       Role: !GetAtt [ LambdaExecutionRole, Arn ]
