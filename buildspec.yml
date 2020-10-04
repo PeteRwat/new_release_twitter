@@ -1,0 +1,12 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - npm ci
+      - aws cloudformation package --template-file ./stack.yml --s3-bucket new_release_twitter_bucket --output-template-file ./output-stack.yml
+
+artifacts:
+  type: zip
+  files:
+    - ./**/*
