@@ -14,7 +14,7 @@ Resources:
       AutoPublishAlias: live
       Description: Lambda that emails me relevant tweets
       Role: !GetAtt [ LambdaExecutionRole, Arn ]
-      MemorySize: 3008
+      MemorySize: 192
       Timeout: 900
 
   LambdaExecutionRole:

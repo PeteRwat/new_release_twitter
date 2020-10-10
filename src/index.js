@@ -3,6 +3,7 @@ const https = require('https');
 var AWS = require('aws-sdk');
 
 function httpsRequest(account, searchTerms) {
+    console.log("in https request")
     var searchQuery = searchTerms !== "" ? encodeURI(searchTerms.join(" ")).replace(/%22/g, '"') : searchTerms
 
     var options = {
@@ -14,6 +15,7 @@ function httpsRequest(account, searchTerms) {
       };
 
     return new Promise(function(resolve, reject) {
+        console.log("in https request promise")
         var req = https.request(options, function(res) {
             // reject on bad status
             if (res.statusCode < 200 || res.statusCode >= 300) {
