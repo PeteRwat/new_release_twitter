@@ -139,7 +139,7 @@ exports.handler = async (event, context) => {
                     AWS.config.update({region: 'eu-west-1'});
                     var sendPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
 
-                    sendPromise.then(
+                    await sendPromise.then(
                         function(data) {
                         console.log(data.MessageId);
                         }).catch(
