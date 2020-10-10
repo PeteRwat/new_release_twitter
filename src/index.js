@@ -96,6 +96,38 @@ function readSearchTerms(file){
 }
 
 exports.handler = async (event, context) => {
+
+    var params = {
+        Destination: {
+            ToAddresses: ['peter.rwatschew.p123@gmail.com']
+        },
+        Message: { 
+        Body: { 
+            Text: {
+            Charset: "UTF-8",
+            Data: "test"
+            }
+        },
+        Subject: {
+            Charset: 'UTF-8',
+            Data: 'Test email'
+        }
+        },
+        Source: 'peter.rwatschew.p123@gmail.com', 
+    };
+    console.log("trying to sending email")
+    AWS.config.update({region: 'eu-west-1'});
+    var sendPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
+
+    sendPromise.then(
+        function(data) {
+        console.log(data.MessageId);
+        }).catch(
+        function(err) {
+        console.error(err, err.stack);
+        });
+
+
     const accountsFile = fs.readFileSync('./accounts.txt').toString('utf8')
 
     console.log("account file ->", accountsFile)
